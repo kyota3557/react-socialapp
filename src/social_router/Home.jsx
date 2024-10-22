@@ -7,7 +7,7 @@ const Home = () => {
   return (
     <div>
       {formData ? (
-        <h1>ようこそ　{formData.username}</h1>
+        <h1>こんにちは　{formData.username}</h1>
       ) : (
         <h1>データが存在しません</h1>
       )}
