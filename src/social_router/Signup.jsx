@@ -1,6 +1,6 @@
 import React,{ useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './Signup.css'
+import './css/Signup.css'
 
 const Signup = () => {
     const navigate = useNavigate();
@@ -9,6 +9,16 @@ const Signup = () => {
         email:'',
         password:''
     });
+    
+    const [profilePicture,setProfilePicture] = useState(null);
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if(file) {
+            setProfilePicture(file);
+        };
+        };
+    
 
     const clearInput = () => {
         setFormData({
@@ -20,16 +30,23 @@ const Signup = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+        const formDataToSubmit = new FormData();
+        formDataToSubmit.append('username', formData.username);
+        formDataToSubmit.append('email', formData.email);
+        formDataToSubmit.append('password', formData.password);
+        if (profilePicture) {
+            formDataToSubmit.append('profilePicture', profilePicture);
+        }
+       
         try{
             const response = await fetch('http://localhost:5000/api/signup',{
                 method:'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body:JSON.stringify(formData),
+                body:JSON.stringify(formDataToSubmit),
             });
-            const data = await response.json();
+           console.log(response);
             navigate('/home', { state: { formData } });
             clearInput();
         } catch (error) {
@@ -84,7 +101,24 @@ const Signup = () => {
                         required
                         />
                 </li>
+                <li className='input-li'>
+                    <label className='input-label' htmlFor='profilePicture'>
+                        プロフィール画像
+                    </label>
+                    <input
+                        type='file'
+                        name='profilePicture'
+                        id='profilePicuture'
+                        accept='image/*'
+                        onChange={handleFileChange}
+                    >
+                    </input>
+                </li>
+                {profilePicture && (
+                    <img src={URL.createObjectURL(profilePicture)} alt='Profile Preview' className='profile-preview' />
+                )}
             </ul>
+
             <div className='input-button'>
                 <button type='submit'>新規登録</button>
             </div>
