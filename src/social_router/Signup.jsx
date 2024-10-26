@@ -14,6 +14,7 @@ const Signup = () => {
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
+        
         if(file) {
             setProfilePicture(file);
         };
@@ -41,10 +42,10 @@ const Signup = () => {
         try{
             const response = await fetch('http://localhost:5000/api/signup',{
                 method:'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body:JSON.stringify(formDataToSubmit),
+                // headers: {
+                //     'Content-Type': 'application/json',
+                // },
+                body:formDataToSubmit,
             });
            console.log(response);
             navigate('/home', { state: { formData } });
@@ -108,7 +109,7 @@ const Signup = () => {
                     <input
                         type='file'
                         name='profilePicture'
-                        id='profilePicuture'
+                        id='profilePicture'
                         accept='image/*'
                         onChange={handleFileChange}
                     >
