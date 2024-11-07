@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-const Login = ({ setToken }) => {
+const Login = ({ token,setToken }) => {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [loginUser, setLoginUser] = useState('');
    
     
 
@@ -19,8 +20,9 @@ const Login = ({ setToken }) => {
             });
             console.log(response)
             setToken(response.data.token); // トークンを親コンポーネントにセット
+            setLoginUser(response.data.loginUsername);
             setError('');
-            navigate('/home');
+            navigate('/home', { state: { loginUser: response.data.loginUsername } }); // 直接値を渡す
         } catch (err) {
             setError('Invalid credentials');
         }

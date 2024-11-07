@@ -22,6 +22,7 @@ mongoose.connect('mongodb://localhost:27017/SignupDatabase',{
 // ミドルウェア
 app.use(cors());
 app.use(bodyParser.json());
+app.use('/uploads',express.static('uploads'));
 
 const storage = multer.diskStorage({
     destination:(req,file,cb) => {
@@ -45,7 +46,13 @@ const userSchema = new mongoose.Schema({
     profilePicture: String,
 });
 
+const postSchema = new mongoose.Schema({
+    content: { type: String, required: true },
+    createdAt: { type: Date, default: Date.now }
+});
+
 const User = mongoose.model('User',userSchema);
+const Post = mongoose.model('Post', postSchema);
 
 app.post('/api/signup',upload.single('profilePicture'), async (req, res) => {
     const { username, email, password } = req.body; // パスワードを取得
@@ -70,41 +77,6 @@ app.post('/api/signup',upload.single('profilePicture'), async (req, res) => {
     }
 });
 
-app.get('/api/users',async (req,res) => {
-    try{
-        const users = await User.find();
-        res.status(200).json(users);
-    } catch(error) {
-        console.error('Error fetching users:',error);
-        res.status(500).json({message:'Error fetching users'});
-    }
-});
-
-app.get('/api/users/:id',async (req,res) => {
-    try {
-        const user = await User.findById(req.params.id);
-        if(!user) {
-            return res.status(404).json({message:'User not found'});
-        }
-        res.status(200).json(user);
-    } catch(error) {
-        console.error('Error fetching user:',error);
-        res.status(500).json({message:'Error fetching user'});
-    }
-});
-
-app.put('/api/users/:id',async (req,res) => {
-    try {
-        const updatedUser = await User.findByIdAndUpdate(req.params.id,req.body,{new:true});
-        if(!updatedUser) {
-            return res.status(404).json({message:'User not found'});
-        }
-        res.status(200).json({message:'User updated succesfully',data:updatedUser});
-    } catch (error) {
-        console.error('Error updating user:',error);
-        res.status(500).json({message:'Error updating user'});
-    }
-});
 
 app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
@@ -112,6 +84,7 @@ app.post('/api/login', async (req, res) => {
     try {
         const user = await User.findOne({ email });
         console.log(user);
+        const loginUsername = user.username;
         if (!user) {
             return res.status(401).json({ message: 'ユーザーが見つかりません' });
         }
@@ -125,7 +98,7 @@ app.post('/api/login', async (req, res) => {
 
         const token = generateToken(user._id);
         console.log(token);
-        res.status(200).json({ message: 'Login successful', token, user });
+        res.status(200).json({ message: 'Login successful', token, loginUsername});
     } catch (error) {
         console.error('Error during login:', error);
         res.status(500).json({ message: 'Error logging in' });
@@ -133,7 +106,7 @@ app.post('/api/login', async (req, res) => {
 });
 
 const authenticate = (req, res, next) => {
-    const token = req.headers['authorization'];
+    const token = req.headers['authorization']?.split(' ')[1]; // "Bearer <token>"からトークンを抽出
     if (!token) return res.status(401).json({ message: 'No token provided' });
 
     // トークンを検証（例: JWTを使用）
@@ -147,6 +120,7 @@ const authenticate = (req, res, next) => {
 // 認証ミドルウェアを使用
 app.get('/api/users/me', authenticate, async (req, res) => {
     try {
+        console.log('おくられてきた',req);
         const user = await User.findById(req.userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
@@ -155,6 +129,43 @@ app.get('/api/users/me', authenticate, async (req, res) => {
     } catch (error) {
         console.error('Error fetching user:', error);
         res.status(500).json({ message: 'Error fetching user' });
+    }
+});
+
+app.put('/api/users/me', authenticate, async (req, res) => {
+    try {
+        const updates = req.body; // リクエストボディから更新情報を取得
+        const user = await User.findByIdAndUpdate(req.userId, updates, { new: true });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json(user); // 更新されたユーザー情報を返す
+    } catch (error) {
+        console.error('Error updating user:', error);
+        res.status(500).json({ message: 'Error updating user' });
+    }
+});
+
+app.get('/api/posts',async (req,res) => {
+    try{
+        const posts = await Post.find().sort({ createdAt:-1});
+        res.json(posts);
+    }catch (err) {
+        res.status(500).json({message: err.message}); 
+    }
+});
+
+app.post('/api/posts',async (req,res) => {
+    const post = new Post({
+        content: req.body.content
+    });
+    
+    try{
+        const savedPost = await post.save();
+        res.json(savedPost);
+    }catch (err) {
+        res.status(500).json({message: err.message});
     }
 });
 

@@ -14,7 +14,7 @@ const Signup = () => {
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
-        
+        console.log('ファイルは',file);
         if(file) {
             setProfilePicture(file);
         };
