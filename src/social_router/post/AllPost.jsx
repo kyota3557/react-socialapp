@@ -1,5 +1,6 @@
 import React,{ useState, useEffect } from 'react'
 import axios from 'axios';
+import './css/AllPost.css'
 
 const AllPost = ({token}) => {
 
@@ -12,38 +13,17 @@ const AllPost = ({token}) => {
     try {
       const response = await axios.get('http://localhost:5000/api/posts');
       setPosts(response.data);
+      console.log("postは",response);
     }catch (error) {
       console.log('Error fetching posts:',error);
     }
   };
 
-  const fetchUserData = async () => {
-    try{
-      console.log('tokenは',token);
-      const response = await axios.get('http://localhost:5000/api/users/me', {
-        headers: {
-          Authorization: `Bearer ${token}`, // 認証トークンをヘッダーに追加
-      },
-      });
-      setUser(response.data);
-    } catch (err) {
-      setError('ユーザー情報を取得できませんでした');
-      console.error(err);
-    }
-  };
 
-  const fetchData = async () => {
-    try {
-      await Promise.all([fetchPosts(),fetchUserData()]);
-      console.log('fetch完了')
-    } catch (error){
-      console.error('データの取得に失敗しました:',error);
-    }
-  };
   
   useEffect(() => {
   
-  fetchData();
+  fetchPosts();
   },[]);
 
   
@@ -52,26 +32,31 @@ const AllPost = ({token}) => {
       return <div>Error: {error}</div>;
     }
   
-    if (!user) {
-      return <div>Loading user data...</div>; // ユーザー情報がまだロードされていない場合
-    }
-  const imagePath = user.profilePicture; // 例: "uploads\\1730295073801_player.png"
-  const imageUrl = `http://localhost:5000/${imagePath.replace(/\\/g, '/')}`; // バックスラッシュをスラッシュに変換
+   
+  // const imagePath = posts.userId.profilePicture; // 例: "uploads\\1730295073801_player.png"
+  // const imageUrl = `http://localhost:5000/${imagePath.replace(/\\/g, '/')}`; // バックスラッシュをスラッシュに変換
 
 
   return (
     <div>
         <h2>投稿一覧</h2>
         <ul>
-          <li>{user.username}</li>
-          <li><img src={imageUrl} alt='Profile Preview' /></li>
-          {posts.map((post) => (
-            <li key={post._id}>
-              <p>{post.content}</p>
-            </li>
-          ))}
-        </ul>
-      </div>
+    {posts.map((post) => (
+        <li key={post._id} className="post-item">
+            <div className="user-info">
+                <img 
+                    src={`http://localhost:5000/${post.userId.profilePicture.replace(/\\/g, '/')}`} 
+                    alt="Profile" 
+                    className="profile-picture"
+                />
+                <h3 className="username">{post.userId.username}</h3>
+            </div>
+            <p className="post-content">{post.content}</p>  {/* 投稿内容 */}
+        </li>
+    ))}
+</ul>
+
+    </div>
   )
 }
 

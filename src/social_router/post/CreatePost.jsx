@@ -1,8 +1,11 @@
 import React,{ useState, useEffect } from 'react'
 import axios from 'axios';
-const CreatePost = () => {
+const CreatePost = ({token}) => {
+
+  const [user, setUser] = useState(null);
   const [postText,setPostText] = useState('');
   const [posts,setPosts] = useState([]);
+  const [error, setError] = useState('');
   
   const fetchPosts = async () => {
     try {
@@ -13,8 +16,33 @@ const CreatePost = () => {
     }
   };
 
+  const fetchUserData = async () => {
+    try{
+      console.log(token);
+      const response = await axios.get('http://localhost:5000/api/users/me', {
+        headers: {
+          Authorization: `Bearer ${token}`, // 認証トークンをヘッダーに追加
+      },
+      });
+      setUser(response.data);
+      console.log('dataは',response.data);
+    } catch (err) {
+      setError('ユーザー情報を取得できませんでした');
+      console.error(err);
+    }
+  };
+
+  const fetchData = async () => {
+    try {
+      await Promise.all([fetchPosts(),fetchUserData()]);
+      console.log('user is',user);
+    } catch (error){
+      console.error('データの取得に失敗しました:',error);
+    }
+  };
+
   useEffect(() => {
-    fetchPosts();
+    fetchData();
   },[]);
 
   const handlePostTextChange = (e) => {
@@ -29,7 +57,10 @@ const CreatePost = () => {
       return;
     }
     try {
-      const response = await axios.post('http://localhost:5000/api/posts', { content: postText });
+      const response = await axios.post('http://localhost:5000/api/posts', { 
+        content: postText,
+        userId: user._id
+      });
       setPosts([response.data,...posts]);
       setPostText('');
     } catch (error){

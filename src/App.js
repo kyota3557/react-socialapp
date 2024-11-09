@@ -29,7 +29,7 @@ function App() {
         <Route path='/signup' element={<Signup />} />
         <Route path='/home' element={<Home token={token} />} />
         <Route path='/edit' element={<Edit />} />
-        <Route path='/createpost' element={<CreatePost />} />
+        <Route path='/createpost' element={<CreatePost token={token} />} />
         <Route path='/userinfo' element={<UserInfo token={token} />} />
         </Routes>
       </BrowserRouter>

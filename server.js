@@ -48,8 +48,9 @@ const userSchema = new mongoose.Schema({
 
 const postSchema = new mongoose.Schema({
     content: { type: String, required: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },  // ユーザーIDを参照
     createdAt: { type: Date, default: Date.now }
-});
+  });
 
 const User = mongoose.model('User',userSchema);
 const Post = mongoose.model('Post', postSchema);
@@ -147,25 +148,31 @@ app.put('/api/users/me', authenticate, async (req, res) => {
     }
 });
 
-app.get('/api/posts',async (req,res) => {
-    try{
-        const posts = await Post.find().sort({ createdAt:-1});
-        res.json(posts);
-    }catch (err) {
-        res.status(500).json({message: err.message}); 
+app.get('/api/posts', async (req, res) => {
+    try {
+        const posts = await Post.find()
+            .sort({ createdAt: -1 })  // 新しい順にソート
+            .populate('userId', 'username profilePicture');  // ユーザー情報をpopulateで取得
+
+        res.json(posts);  // 投稿とユーザー情報を一緒に返す
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
 });
 
-app.post('/api/posts',async (req,res) => {
-    const post = new Post({
-        content: req.body.content
-    });
-    
-    try{
-        const savedPost = await post.save();
-        res.json(savedPost);
-    }catch (err) {
-        res.status(500).json({message: err.message});
+
+app.post('/api/posts', async (req, res) => {
+    try {
+        const { content, userId } = req.body;  // ユーザーIDを使用
+        const newPost = new Post({
+            content,
+            userId  // 投稿にユーザーIDを関連付ける
+        });
+
+        const savedPost = await newPost.save();
+        res.json(savedPost);  // 新しい投稿をレスポンスとして返す
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
 });
 

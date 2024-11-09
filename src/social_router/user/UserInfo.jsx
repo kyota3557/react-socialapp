@@ -1,5 +1,7 @@
 import React,{ useEffect, useState} from 'react'
 import axios from 'axios'
+import './css/UserInfo.css'
+
 const UserInfo = ({token}) => {
   const [user, setUser] = useState(null);
   const [error, setError] = useState('');
@@ -40,10 +42,12 @@ const UserInfo = ({token}) => {
   return (
     <div>
       <h1>ユーザー情報</h1>
-      <p>名前: {user.username}</p>
-      <p>メール: {user.email}</p>
-      <img src={imageUrl} alt='Profile Preview' />
-      {/* 他のユーザー情報も必要に応じて表示 */}
+        <div className='user-item'>
+          <p className='user-username'>名前: {user.username}</p>
+          <p className='user-email'>メール: {user.email}</p>
+          <img src={imageUrl} alt='Profile Preview' className='user-preview' />
+          {/* 他のユーザー情報も必要に応じて表示 */}
+        </div>
     </div>
   )
 }
