@@ -48,7 +48,7 @@ const Signup = () => {
                 body:formDataToSubmit,
             });
            console.log(response);
-            navigate('/home', { state: { formData } });
+            navigate('/login');
             clearInput();
         } catch (error) {
             console.error('Error:',error);

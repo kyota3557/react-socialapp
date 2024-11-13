@@ -5,6 +5,7 @@ import Home from './social_router/Home';
 import Edit from './social_router/Edit';
 import Signup from './social_router/Signup';
 import Login from './social_router/Login';
+import UserPage from './social_router/user/UserPage';
 import CreatePost from './social_router/post/CreatePost';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import UserInfo from './social_router/user/UserInfo';
@@ -31,6 +32,7 @@ function App() {
         <Route path='/edit' element={<Edit />} />
         <Route path='/createpost' element={<CreatePost token={token} />} />
         <Route path='/userinfo' element={<UserInfo token={token} />} />
+        <Route  path="/userpage/:userId" element={<UserPage token={token} />} />
         </Routes>
       </BrowserRouter>
     </div>

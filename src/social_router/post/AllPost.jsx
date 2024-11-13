@@ -1,63 +1,86 @@
-import React,{ useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './css/AllPost.css'
+import './css/AllPost.css';
+import { Link } from 'react-router-dom';
 
-const AllPost = ({token}) => {
-
-  const [user, setUser] = useState(null);
-  const [posts,setPosts] = useState([]);
+const AllPost = ({ token }) => {
+  const [posts, setPosts] = useState([]);
   const [error, setError] = useState('');
 
   const fetchPosts = async () => {
-    
     try {
       const response = await axios.get('http://localhost:5000/api/posts');
       setPosts(response.data);
-      console.log("postは",response);
-    }catch (error) {
-      console.log('Error fetching posts:',error);
+      console.log("responseは", response);
+    } catch (error) {
+      setError('Error fetching posts');
+      console.log('Error fetching posts:', error);
     }
   };
 
+  const deletePost = async (postId) => {
+    try {
+      const response = await axios.delete(`http://localhost:5000/api/posts/${postId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,  // トークンを送信する場合
+        }
+      });
 
-  
-  useEffect(() => {
-  
-  fetchPosts();
-  },[]);
-
-  
-    // userがまだ読み込まれていない場合、またはエラーが発生した場合はローディングやエラーメッセージを表示
-    if (error) {
-      return <div>Error: {error}</div>;
+      // 投稿が削除されたら、投稿一覧から削除する
+      setPosts((prevPosts) => prevPosts.filter(post => post._id !== postId));
+      console.log('Deleted post:', response.data);
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      setError('Error deleting post');
     }
-  
-   
-  // const imagePath = posts.userId.profilePicture; // 例: "uploads\\1730295073801_player.png"
-  // const imageUrl = `http://localhost:5000/${imagePath.replace(/\\/g, '/')}`; // バックスラッシュをスラッシュに変換
+  };
 
+  useEffect(() => {
+    fetchPosts();
+    console.log(posts);
+  }, []);
+
+  useEffect(() => {
+    console.log("postsが更新されました:", posts);
+  }, [posts]);
+
+  // userがまだ読み込まれていない場合、またはエラーが発生した場合はローディングやエラーメッセージを表示
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <div>
-        <h2>投稿一覧</h2>
-        <ul>
-    {posts.map((post) => (
-        <li key={post._id} className="post-item">
+      <h2>投稿一覧</h2>
+      <ul>
+        {posts.map((post) => (
+          <li key={post._id} className="post-item">
             <div className="user-info">
-                <img 
-                    src={`http://localhost:5000/${post.userId.profilePicture.replace(/\\/g, '/')}`} 
-                    alt="Profile" 
-                    className="profile-picture"
+              {post.userId.profilePicture ? (
+                <img
+                  src={`http://localhost:5000/${post.userId.profilePicture.replace(/\\/g, '/')}`}
+                  alt="Profile"
+                  className="profile-picture"
                 />
-                <h3 className="username">{post.userId.username}</h3>
+              ) : (
+                <div>No Profile Picture</div>
+              )}
+              <Link to={`/userpage/${post.userId._id}`} className="username">{post.userId.username}</Link>
             </div>
             <p className="post-content">{post.content}</p>  {/* 投稿内容 */}
-        </li>
-    ))}
-</ul>
-
+            
+            {/* 削除ボタン */}
+            <button
+              className="delete-button"
+              onClick={() => deletePost(post._id)}
+            >
+              削除
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
-  )
-}
+  );
+};
 
-export default AllPost
+export default AllPost;

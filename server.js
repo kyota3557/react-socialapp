@@ -133,6 +133,18 @@ app.get('/api/users/me', authenticate, async (req, res) => {
     }
 });
 
+app.get('/api/users/:userId', async (req, res) => {
+    try {
+      const user = await User.findById(req.params.userId);  // MongoDBのUserモデルを使用
+      if (!user) {
+        return res.status(404).send('User not found');
+      }
+      res.send(user);
+    } catch (err) {
+      res.status(500).send('Server Error');
+    }
+  });
+
 app.put('/api/users/me', authenticate, async (req, res) => {
     try {
         const updates = req.body; // リクエストボディから更新情報を取得
@@ -150,7 +162,12 @@ app.put('/api/users/me', authenticate, async (req, res) => {
 
 app.get('/api/posts', async (req, res) => {
     try {
-        const posts = await Post.find()
+        const { userId } = req.query;  // クエリパラメータからuserIdを取得
+
+        // userIdが提供されていれば、そのユーザーの投稿のみを取得
+        const filter = userId ? { userId } : {};
+
+        const posts = await Post.find(filter)
             .sort({ createdAt: -1 })  // 新しい順にソート
             .populate('userId', 'username profilePicture');  // ユーザー情報をpopulateで取得
 
@@ -175,6 +192,24 @@ app.post('/api/posts', async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 });
+
+app.delete('/api/posts/:id',async (req,res) => {
+    const { id } = req.params;
+    
+    try{
+        if(!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({message:'Invalid post ID'});
+        }
+        const deletePost = await Post.findByIdAndDelete(id);
+        if(!deletePost){
+            return res.status(404).json({message:'Post not found'});
+        }
+        res.json({message:'Post deleted successfully'});
+    } catch(err) {
+        res.status(500).json({message:err.message});
+    }
+});
+
 
 app.listen(PORT,() => {
     console.log(`Server is running on http://localhost:${PORT}`)
