@@ -1,7 +1,7 @@
 import React,{ useEffect, useState} from 'react'
 import axios from 'axios'
 import './css/UserInfo.css'
-
+import { Link } from 'react-router-dom'
 const UserInfo = ({token}) => {
   const [user, setUser] = useState(null);
   const [error, setError] = useState('');
@@ -48,7 +48,9 @@ const UserInfo = ({token}) => {
           <img src={imageUrl} alt='Profile Preview' className='user-preview' />
           {/* 他のユーザー情報も必要に応じて表示 */}
         </div>
+        <Link to={"/home"}>戻る</Link>
     </div>
+  
   )
 }
 

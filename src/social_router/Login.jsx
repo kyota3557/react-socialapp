@@ -22,7 +22,7 @@ const Login = ({ token,setToken }) => {
             setToken(response.data.token); // トークンを親コンポーネントにセット
             setLoginUser(response.data.loginUsername);
             setError('');
-            navigate('/home', { state: { loginUser: response.data.loginUsername } }); // 直接値を渡す
+            navigate('/home'); // 直接値を渡す
         } catch (err) {
             setError('Invalid credentials');
         }

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './css/UserPage.css';  // 必要に応じてスタイルを追加
 import { useParams } from 'react-router-dom';
-
+import { Link } from 'react-router-dom';
 const UserPage = () => {
   const { userId } = useParams();  // URLからuserIdを取得
   const [user, setUser] = useState(null);
@@ -61,6 +61,7 @@ const UserPage = () => {
           </li>
         ))}
       </ul>
+      <Link to={"/home"}>戻る</Link>
     </div>
   );
 };

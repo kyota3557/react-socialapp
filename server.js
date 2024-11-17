@@ -46,12 +46,21 @@ const userSchema = new mongoose.Schema({
     profilePicture: String,
 });
 
-const postSchema = new mongoose.Schema({
-    content: { type: String, required: true },
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },  // ユーザーIDを参照
-    createdAt: { type: Date, default: Date.now }
-  });
-
+const postSchema = new mongoose.Schema(
+    {
+      content: { type: String, required: true },
+      userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+      likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],  // いいねしたユーザーのID
+      comments: [
+        {
+          userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+          content: { type: String, required: true },
+        },
+      ],
+    },
+    { timestamps: true }
+  );
+  
 const User = mongoose.model('User',userSchema);
 const Post = mongoose.model('Post', postSchema);
 
@@ -69,11 +78,10 @@ app.post('/api/signup',upload.single('profilePicture'), async (req, res) => {
     try {
         const newUser = new User(formData);
         await newUser.save();
-        
-        console.log('Received data:', formData);
+       
         res.status(201).json({ message: 'User registered successfully', data: formData });
     } catch (error) {
-        console.error('Error saving user:', error);
+      
         res.status(500).json({ message: 'Error registering user' });
     }
 });
@@ -84,7 +92,7 @@ app.post('/api/login', async (req, res) => {
 
     try {
         const user = await User.findOne({ email });
-        console.log(user);
+   
         const loginUsername = user.username;
         if (!user) {
             return res.status(401).json({ message: 'ユーザーが見つかりません' });
@@ -121,7 +129,7 @@ const authenticate = (req, res, next) => {
 // 認証ミドルウェアを使用
 app.get('/api/users/me', authenticate, async (req, res) => {
     try {
-        console.log('おくられてきた',req);
+        
         const user = await User.findById(req.userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
@@ -160,22 +168,121 @@ app.put('/api/users/me', authenticate, async (req, res) => {
     }
 });
 
-app.get('/api/posts', async (req, res) => {
-    try {
-        const { userId } = req.query;  // クエリパラメータからuserIdを取得
+// いいねを追加
+// app.post('/api/:postId/like', authenticate, async (req, res) => {
+//     const { postId } = req.params;
+//     const userId = req.user._id;  // 認証されたユーザーのIDを取得
+    
+//     try {
+//       const post = await Post.findById(postId);
+      
+//       // すでにいいねしているか確認
+//       if (post.likes.includes(userId)) {
+//         return res.status(400).json({ message: 'You already liked this post.' });
+//       }
+  
+//       // いいねを追加
+//       post.likes.push(userId);
+//       await post.save();
+  
+//       // 更新後のいいねリストを返す
+//       res.json({ likes: post.likes });
+//     } catch (err) {
+//       console.error(err);
+//       res.status(500).json({ message: 'Error adding like' });
+//     }
+//   });
+  
+//   // いいねを削除
+//   app.delete('/api/:postId/like', authenticate, async (req, res) => {
+//     const { postId } = req.params;
+//     const userId = req.user._id;  // 認証されたユーザーのIDを取得
+    
+//     try {
+//       const post = await Post.findById(postId);
+      
+//       // いいねしていない場合
+//       if (!post.likes.includes(userId)) {
+//         return res.status(400).json({ message: 'You have not liked this post yet.' });
+//       }
+  
+//       // いいねを削除
+//       post.likes = post.likes.filter((id) => id.toString() !== userId.toString());
+//       await post.save();
+  
+//       // 更新後のいいねリストを返す
+//       res.json({ likes: post.likes });
+//     } catch (err) {
+//       console.error(err);
+//       res.status(500).json({ message: 'Error removing like' });
+//     }
+//   });
 
-        // userIdが提供されていれば、そのユーザーの投稿のみを取得
-        const filter = userId ? { userId } : {};
+//   // routes/posts.js
 
-        const posts = await Post.find(filter)
-            .sort({ createdAt: -1 })  // 新しい順にソート
-            .populate('userId', 'username profilePicture');  // ユーザー情報をpopulateで取得
+// // コメントを追加
+// app.post('/api/:postId/comment', authenticate, async (req, res) => {
+//     const { postId } = req.params;
+//     const { content } = req.body;
+//     const userId = req.user._id;  // 認証されたユーザーのIDを取得
+  
+//     try {
+//       const post = await Post.findById(postId);
+      
+//       // コメントを追加
+//       post.comments.push({ userId, content });
+//       await post.save();
+  
+//       // 更新後のコメントを返す
+//       res.json({ comments: post.comments });
+//     } catch (err) {
+//       console.error(err);
+//       res.status(500).json({ message: 'Error adding comment' });
+//     }
+//   });
 
-        res.json(posts);  // 投稿とユーザー情報を一緒に返す
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+  // routes/posts.js
+
+app.get('/api/:postId', async (req, res) => {
+    const { postId } = req.params;
+    
+    if (!mongoose.Types.ObjectId.isValid(postId)) {
+        return res.status(400).json({ message: 'Invalid post ID' });
     }
-});
+
+    try {
+      const post = await Post.findById(postId).populate('comments.userId', 'username');
+      res.json(post);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Error fetching post' });
+    }
+  });
+  
+  
+
+  app.get('/api/posts', async (req, res) => {
+    try {
+      let { userId } = req.query;
+  
+      // userIdが存在する場合、バリデーションを実施
+      if (userId && !mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ message: 'Invalid userId format' });
+      }
+  
+      // userIdが提供されていない場合、すべての投稿を返す
+      const filter = userId ? { userId: mongoose.Types.ObjectId(userId) } : {};
+      const posts = await Post.find(filter).sort({ _id: -1 }).populate('userId', 'username profilePicture');
+  
+      res.json(posts);  // 投稿とユーザー情報を一緒に返す
+    } catch (err) {
+      console.error('Error fetching posts:', err);
+      res.status(500).json({ message: err.message });
+    }
+  });
+  
+  
+
 
 
 app.post('/api/posts', async (req, res) => {

@@ -1,5 +1,6 @@
 import React,{ useState, useEffect } from 'react'
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 const CreatePost = ({token}) => {
 
   const [user, setUser] = useState(null);
@@ -82,19 +83,8 @@ const CreatePost = ({token}) => {
           <br/>
         <button type='submit'>投稿</button>
         </form> 
-       
+        <Link to={"/home"}>戻る</Link>
         
-        {/* 投稿リスト */}
-      <div>
-        <h2>投稿一覧</h2>
-        <ul>
-          {posts.map((post) => (
-            <li key={post._id}>
-              <p>{post.content}</p>
-            </li>
-          ))}
-        </ul>
-      </div>
     </div>
   )
 }
