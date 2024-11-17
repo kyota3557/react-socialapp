@@ -168,103 +168,106 @@ app.put('/api/users/me', authenticate, async (req, res) => {
     }
 });
 
-// いいねを追加
-// app.post('/api/:postId/like', authenticate, async (req, res) => {
-//     const { postId } = req.params;
-//     const userId = req.user._id;  // 認証されたユーザーのIDを取得
-    
-//     try {
-//       const post = await Post.findById(postId);
-      
-//       // すでにいいねしているか確認
-//       if (post.likes.includes(userId)) {
-//         return res.status(400).json({ message: 'You already liked this post.' });
-//       }
-  
-//       // いいねを追加
-//       post.likes.push(userId);
-//       await post.save();
-  
-//       // 更新後のいいねリストを返す
-//       res.json({ likes: post.likes });
-//     } catch (err) {
-//       console.error(err);
-//       res.status(500).json({ message: 'Error adding like' });
-//     }
-//   });
-  
-//   // いいねを削除
-//   app.delete('/api/:postId/like', authenticate, async (req, res) => {
-//     const { postId } = req.params;
-//     const userId = req.user._id;  // 認証されたユーザーのIDを取得
-    
-//     try {
-//       const post = await Post.findById(postId);
-      
-//       // いいねしていない場合
-//       if (!post.likes.includes(userId)) {
-//         return res.status(400).json({ message: 'You have not liked this post yet.' });
-//       }
-  
-//       // いいねを削除
-//       post.likes = post.likes.filter((id) => id.toString() !== userId.toString());
-//       await post.save();
-  
-//       // 更新後のいいねリストを返す
-//       res.json({ likes: post.likes });
-//     } catch (err) {
-//       console.error(err);
-//       res.status(500).json({ message: 'Error removing like' });
-//     }
-//   });
 
-//   // routes/posts.js
-
-// // コメントを追加
-// app.post('/api/:postId/comment', authenticate, async (req, res) => {
-//     const { postId } = req.params;
-//     const { content } = req.body;
-//     const userId = req.user._id;  // 認証されたユーザーのIDを取得
-  
-//     try {
-//       const post = await Post.findById(postId);
+app.post('/api/:postId/like',  async (req, res) => {
+    const { postId } = req.params;
+    const userId = req.body; // 認証されたユーザーのIDを取得
+    try {
+      const post = await Post.findById(postId);
       
-//       // コメントを追加
-//       post.comments.push({ userId, content });
-//       await post.save();
+      // すでにいいねしているか確認
+      if (post.likes.includes(userId)) {
+        return res.status(400).json({ message: 'You already liked this post.' });
+      }
   
-//       // 更新後のコメントを返す
-//       res.json({ comments: post.comments });
-//     } catch (err) {
-//       console.error(err);
-//       res.status(500).json({ message: 'Error adding comment' });
-//     }
-//   });
+      // いいねを追加
+      post.likes.push(userId);
+      await post.save();
+  
+      // 更新後のいいねリストを返す
+      res.json({ likes: post.likes });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Error adding like' });
+    }
+  });
+  
+  // いいねを削除
+  app.delete('/api/posts/:postId/like', authenticate, async (req, res) => {
+    const { postId } = req.params;
+    const userId = req.user._id;  // 認証されたユーザーのIDを取得
+    
+    try {
+      const post = await Post.findById(postId);
+      
+      // いいねしていない場合
+      if (!post.likes.includes(userId)) {
+        return res.status(400).json({ message: 'You have not liked this post yet.' });
+      }
+  
+      // いいねを削除
+      post.likes = post.likes.filter((id) => id.toString() !== userId.toString());
+      await post.save();
+  
+      // 更新後のいいねリストを返す
+      res.json({ likes: post.likes });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Error removing like' });
+    }
+  });
 
   // routes/posts.js
 
-app.get('/api/:postId', async (req, res) => {
-    const { postId } = req.params;
-    
-    if (!mongoose.Types.ObjectId.isValid(postId)) {
-        return res.status(400).json({ message: 'Invalid post ID' });
-    }
+// コメントを追加
+app.post('/api/posts/:postId/comment', async (req, res) => {
+  const { postId } = req.params;
+  const { content, userId } = req.body;  // ユーザーIDを使用
 
-    try {
-      const post = await Post.findById(postId).populate('comments.userId', 'username');
-      res.json(post);
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: 'Error fetching post' });
-    }
-  });
+  try {
+      // PostをIDで取得
+      const post = await Post.findById(postId);
+
+      // コメントを追加
+      post.comments.push({ userId, content });
+      
+      // コメントを保存
+      await post.save();
+
+      // コメントをpopulateして返す
+      await post.populate('comments.userId', 'username profilePicture');
+      
+      // 更新されたコメントを返す
+      res.json({ comments: post.comments });
+  } catch (err) {
+      // エラーハンドリング
+      res.status(500).json({ error: err.message });
+  }
+});
+
+
+// app.get('/api/:postId', async (req, res) => {
+//     const { postId } = req.params;
+    
+//     if (!mongoose.Types.ObjectId.isValid(postId)) {
+//         return res.status(400).json({ message: 'Invalid post ID' });
+//     }
+
+//     try {
+//       const post = await Post.findById(postId).populate('comments.userId', 'username');
+//       res.json(post);
+//     } catch (err) {
+//       console.error(err);
+//       res.status(500).json({ message: 'Error fetching post' });
+//     }
+//   });
   
   
 
   app.get('/api/posts', async (req, res) => {
     try {
       let { userId } = req.query;
-  
+    
       // userIdが存在する場合、バリデーションを実施
       if (userId && !mongoose.Types.ObjectId.isValid(userId)) {
         return res.status(400).json({ message: 'Invalid userId format' });
