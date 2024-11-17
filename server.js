@@ -169,28 +169,36 @@ app.put('/api/users/me', authenticate, async (req, res) => {
 });
 
 
-app.post('/api/:postId/like',  async (req, res) => {
-    const { postId } = req.params;
-    const userId = req.body; // 認証されたユーザーのIDを取得
-    try {
-      const post = await Post.findById(postId);
-      
-      // すでにいいねしているか確認
-      if (post.likes.includes(userId)) {
-        return res.status(400).json({ message: 'You already liked this post.' });
-      }
-  
-      // いいねを追加
-      post.likes.push(userId);
-      await post.save();
-  
-      // 更新後のいいねリストを返す
-      res.json({ likes: post.likes });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: 'Error adding like' });
+app.post('/api/posts/:postId/like', async (req, res) => {
+  const { postId } = req.params;
+  const { userId } = req.body; // 認証されたユーザーのIDを取得
+
+  console.log('req.body:', req.body); // userId を確認するためのデバッグ出力
+
+  try {
+    // Postを取得
+    const post = await Post.findById(postId);
+
+    // すでにいいねしているか確認
+    if (post.likes.includes(userId)) {
+      return res.status(400).json({ message: 'You already liked this post.' });
     }
-  });
+
+    // いいねを追加
+    post.likes.push(userId);
+    await post.save();
+
+    console.log('Post liked by user:', userId);
+
+    // 更新後のいいねリストを返す
+    res.json({ likes: post.likes });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error adding like' });
+  }
+});
+
+
   
   // いいねを削除
   app.delete('/api/posts/:postId/like', authenticate, async (req, res) => {

@@ -63,6 +63,7 @@ const AllPost = ({ token, currentUserId }) => {
           userId: currentUserId
         }
       );
+      console.log('resはきた')
       setPosts((prevPosts) =>
         prevPosts.map((post) =>
           post._id === postId
@@ -117,7 +118,7 @@ const AllPost = ({ token, currentUserId }) => {
   if (error) {
     return <div>Error: {error}</div>;
   }
-
+console.log(currentUserId);
   return (
     <div>
       <h2>投稿一覧</h2>
