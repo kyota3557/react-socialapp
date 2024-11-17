@@ -225,25 +225,26 @@ app.post('/api/posts/:postId/comment', async (req, res) => {
   const { content, userId } = req.body;  // ユーザーIDを使用
 
   try {
-      // PostをIDで取得
-      const post = await Post.findById(postId);
+    // PostをIDで取得
+    const post = await Post.findById(postId);
 
-      // コメントを追加
-      post.comments.push({ userId, content });
-      
-      // コメントを保存
-      await post.save();
+    // コメントを追加
+    post.comments.push({ userId, content });
 
-      // コメントをpopulateして返す
-      await post.populate('comments.userId', 'username profilePicture');
-      
-      // 更新されたコメントを返す
-      res.json({ comments: post.comments });
+    // コメントを保存
+    await post.save();
+
+    // コメントをpopulateして返す
+    await post.populate('comments.userId', 'username profilePicture');
+
+    // 更新されたコメントを返す
+    res.json({ comments: post.comments });
   } catch (err) {
-      // エラーハンドリング
-      res.status(500).json({ error: err.message });
+    // エラーハンドリング
+    res.status(500).json({ error: err.message });
   }
 });
+
 
 
 // app.get('/api/:postId', async (req, res) => {

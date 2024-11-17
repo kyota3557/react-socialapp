@@ -32,7 +32,23 @@ const AllPost = ({ token, currentUserId }) => {
   const fetchPosts = async () => {
     try {
       const response = await axios.get('http://localhost:5000/api/posts');
-      setPosts(response.data);
+      const postsWithUserInfo = await Promise.all(
+        response.data.map(async (post) => {
+          const commentsWithUserInfo = await Promise.all(
+            post.comments.map(async (comment) => {
+              const userResponse = await axios.get(
+                `http://localhost:5000/api/users/${comment.userId}`
+              );
+              return {
+                ...comment,
+                userInfo: userResponse.data, // コメントにユーザー情報を追加
+              };
+            })
+          );
+          return { ...post, comments: commentsWithUserInfo };
+        })
+      );
+      setPosts(postsWithUserInfo);
     } catch (error) {
       console.error('Error fetching posts:', error);
       setError(`Error fetching posts: ${error.message || 'Unknown error'}`);
@@ -56,7 +72,6 @@ const AllPost = ({ token, currentUserId }) => {
       );
     } catch (error) {
       console.error('Error liking post:', error);
-      setError(`Error liking post: ${error.message || 'Unknown error'}`);
     }
   };
 
@@ -78,7 +93,6 @@ const AllPost = ({ token, currentUserId }) => {
       );
     } catch (error) {
       console.error('Error adding comment:', error);
-      setError(`Error adding comment: ${error.message || 'Unknown error'}`);
     }
   };
 
@@ -98,7 +112,7 @@ const AllPost = ({ token, currentUserId }) => {
   // 初回データ取得
   useEffect(() => {
     fetchPosts();
-  }, []); // tokenやcurrentUserIdが変更された場合に再度データを取得
+  }, [token, currentUserId]); // tokenやcurrentUserIdが変更された場合に再度データを取得
 
   if (error) {
     return <div>Error: {error}</div>;
@@ -111,7 +125,7 @@ const AllPost = ({ token, currentUserId }) => {
         {posts.map((post) => (
           <li key={post._id} className="post-item">
             <div className="user-info">
-              {post.userId.profilePicture && post.userId.profilePicture !== 'undefined' ? (
+              {post.userId.profilePicture ? (
                 <img
                   src={`http://localhost:5000/${post.userId.profilePicture.replace(/\\/g, '/')}`}
                   alt="Profile"
@@ -136,16 +150,16 @@ const AllPost = ({ token, currentUserId }) => {
               {post.comments && post.comments.length > 0 ? (
                 post.comments.map((comment) => (
                   <div key={comment._id} className="comment">
-                    {comment.userId.profilePicture && comment.userId.profilePicture !== 'undefined' ? (
+                    {comment.userInfo.profilePicture ? (
                       <img
-                        src={`http://localhost:5000/${comment.userId.profilePicture.replace(/\\/g, '/')}`}
+                        src={`http://localhost:5000/${comment.userInfo.profilePicture.replace(/\\/g, '/')}`}
                         alt="Profile"
                         className="profile-picture"
                       />
                     ) : (
                       <div>No Profile Picture</div>
                     )}
-                    <strong>{comment.userId.username}</strong>: {comment.content}
+                    <strong>{comment.userInfo.username}</strong>: {comment.content}
                   </div>
                 ))
               ) : (
