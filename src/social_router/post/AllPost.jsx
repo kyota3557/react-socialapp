@@ -6,30 +6,12 @@ import { Link } from 'react-router-dom';
 const AllPost = ({ token, currentUserId }) => {
   const [posts, setPosts] = useState([]);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false); // ローディング状態を追加
   const [newComments, setNewComments] = useState({}); // 投稿ごとのコメント状態を管理
-
-  // コメント入力変更時の処理
-  const handleCommentChange = (postId, comment) => {
-    setNewComments((prevComments) => ({
-      ...prevComments,
-      [postId]: comment,
-    }));
-  };
-
-  // コメント送信処理
-  const handleCommentSubmit = (postId) => {
-    const comment = newComments[postId]; // 特定の投稿のコメント
-    if (comment.trim().length > 0) {
-      handleAddComment(postId, comment); // コメントを追加
-      setNewComments((prevComments) => ({
-        ...prevComments,
-        [postId]: '', // 送信後、入力フィールドをリセット
-      }));
-    }
-  };
 
   // 投稿を取得する関数
   const fetchPosts = async () => {
+    setLoading(true); // APIリクエスト前にローディング開始
     try {
       const response = await axios.get('http://localhost:5000/api/posts');
       const postsWithUserInfo = await Promise.all(
@@ -52,6 +34,8 @@ const AllPost = ({ token, currentUserId }) => {
     } catch (error) {
       console.error('Error fetching posts:', error);
       setError(`Error fetching posts: ${error.message || 'Unknown error'}`);
+    } finally {
+      setLoading(false); // ローディング完了
     }
   };
 
@@ -76,22 +60,37 @@ const AllPost = ({ token, currentUserId }) => {
     }
   };
 
-  // コメント追加処理
+   // コメント入力変更時の処理
+   const handleCommentChange = (postId, comment) => {
+    setNewComments((prevComments) => ({
+      ...prevComments,
+      [postId]: comment,
+    }));
+  };
+
+  // コメント送信処理
+  const handleCommentSubmit = (postId) => {
+    const comment = newComments[postId]; // 特定の投稿のコメント
+    if (comment.trim().length > 0) {
+      handleAddComment(postId, comment); // コメントを追加
+      setNewComments((prevComments) => ({
+        ...prevComments,
+        [postId]: '', // 送信後、入力フィールドをリセット
+      }));
+    }
+  };
+
+
   const handleAddComment = async (postId, comment) => {
     try {
-      const response = await axios.post(
+      await axios.post(
         `http://localhost:5000/api/posts/${postId}/comment`, {
           content: comment,
           userId: currentUserId
         }
       );
-      setPosts((prevPosts) =>
-        prevPosts.map((post) =>
-          post._id === postId
-            ? { ...post, comments: response.data.comments }
-            : post
-        )
-      );
+      // コメント追加後、データを再取得
+      fetchPosts();
     } catch (error) {
       console.error('Error adding comment:', error);
     }
@@ -118,7 +117,11 @@ const AllPost = ({ token, currentUserId }) => {
   if (error) {
     return <div>Error: {error}</div>;
   }
-console.log(currentUserId);
+
+  if (loading) {
+    return <div>Loading...</div>; // ローディング中の表示
+  }
+
   return (
     <div>
       <h2>投稿一覧</h2>
