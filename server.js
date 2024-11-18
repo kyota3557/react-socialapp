@@ -51,6 +51,7 @@ const postSchema = new mongoose.Schema(
       content: { type: String, required: true },
       userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
       likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],  // いいねしたユーザーのID
+      picture: String,
       comments: [
         {
           userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
@@ -58,6 +59,7 @@ const postSchema = new mongoose.Schema(
         },
       ],
     },
+   
     { timestamps: true }
   );
   
@@ -297,14 +299,15 @@ app.post('/api/posts/:postId/comment', async (req, res) => {
 
 
 
-app.post('/api/posts', async (req, res) => {
+app.post('/api/posts',upload.single('picture'), async (req, res) => {
     try {
         const { content, userId } = req.body;  // ユーザーIDを使用
-        const newPost = new Post({
-            content,
-            userId  // 投稿にユーザーIDを関連付ける
-        });
-
+        const formData = {
+          userId:req.body.userId,
+          content:req.body.content,
+          picture:req.file.path,
+        }
+        const newPost = new Post(formData);
         const savedPost = await newPost.save();
         res.json(savedPost);  // 新しい投稿をレスポンスとして返す
     } catch (err) {

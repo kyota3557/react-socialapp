@@ -31,6 +31,7 @@ const AllPost = ({ token, currentUserId }) => {
         })
       );
       setPosts(postsWithUserInfo);
+      console.log("今のデータは",response.data);
     } catch (error) {
       console.error('Error fetching posts:', error);
       setError(`Error fetching posts: ${error.message || 'Unknown error'}`);
@@ -143,7 +144,9 @@ const AllPost = ({ token, currentUserId }) => {
               </Link>
             </div>
             <p className="post-content">{post.content}</p>
-
+            {post.picture ? (
+              <img src={`http://localhost:5000/${post.picture}`} alt="Post Picture" className="post-picture" />
+            ) : null}
             {/* いいねボタン */}
             <button onClick={() => handleLike(post._id)}>
               {post.likes.includes(currentUserId) ? 'Unlike' : 'Like'} ({post.likes.length})
