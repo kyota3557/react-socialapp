@@ -57,6 +57,38 @@
     margin-bottom: 15px;
 }
 
+/* 画像のサイズを最大幅で制限 */
+.post-picture {
+    max-width: 200px;
+    height: 400px;
+    cursor: pointer; /* クリックできることを示す */
+    object-fit: contain; /* 画像がアスペクト比を保ちつつ表示されるようにする */
+  }
+  
+  .modal {
+    display: none; /* 最初は非表示 */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .modal img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+  }
+  
+  /* モーダルが開いている時に表示 */
+  .modal.open {
+    display: flex;
+  }
+  
+
 /* いいねボタン */
 button {
     padding: 8px 16px;
