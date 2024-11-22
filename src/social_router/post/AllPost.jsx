@@ -8,6 +8,8 @@ const AllPost = ({ token, currentUserId }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false); // ローディング状態を追加
   const [newComments, setNewComments] = useState({}); // 投稿ごとのコメント状態を管理
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentImage, setCurrentImage] = useState(null); // モーダル用の画像
 
   // 投稿を取得する関数
   const fetchPosts = async () => {
@@ -40,6 +42,19 @@ const AllPost = ({ token, currentUserId }) => {
     }
   };
 
+
+  // モーダルを開く
+  const openModal = (imageSrc) => {
+    setCurrentImage(imageSrc);
+    setIsModalOpen(true);
+  };
+
+  // モーダルを閉じる
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setCurrentImage(null);
+  };
+
   // いいね処理
   const handleLike = async (postId) => {
     try {
@@ -61,8 +76,8 @@ const AllPost = ({ token, currentUserId }) => {
     }
   };
 
-   // コメント入力変更時の処理
-   const handleCommentChange = (postId, comment) => {
+  // コメント入力変更時の処理
+  const handleCommentChange = (postId, comment) => {
     setNewComments((prevComments) => ({
       ...prevComments,
       [postId]: comment,
@@ -80,7 +95,6 @@ const AllPost = ({ token, currentUserId }) => {
       }));
     }
   };
-
 
   const handleAddComment = async (postId, comment) => {
     try {
@@ -144,9 +158,24 @@ const AllPost = ({ token, currentUserId }) => {
               </Link>
             </div>
             <p className="post-content">{post.content}</p>
-            {post.picture ? (
-              <img src={`http://localhost:5000/${post.picture}`} alt="Post Picture" className="post-picture" />
-            ) : null}
+            {post.picture && (
+              <img
+                src={`http://localhost:5000/${post.picture}`}
+                alt="Post Picture"
+                className="post-picture"
+                onClick={() => openModal(`http://localhost:5000/${post.picture}`)} // モーダルを開く
+              />
+            )}
+
+            {isModalOpen && (
+              <div className={`modal ${isModalOpen ? 'open' : ''}`} onClick={closeModal}>
+                <img
+                  src={currentImage}
+                  alt="Full Post Picture"
+                  onClick={(e) => e.stopPropagation()} // 画像をクリックしてもモーダルが閉じない
+                />
+              </div>)}
+
             {/* いいねボタン */}
             <button onClick={() => handleLike(post._id)}>
               {post.likes.includes(currentUserId) ? 'Unlike' : 'Like'} ({post.likes.length})
