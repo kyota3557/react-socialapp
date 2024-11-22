@@ -273,29 +273,24 @@ app.post('/api/posts/:postId/comment', async (req, res) => {
 //     }
 //   });
   
+app.get('/api/posts', async (req, res) => {
+  try {
+    let { userId } = req.query;
   
-
-  app.get('/api/posts', async (req, res) => {
-    try {
-      let { userId } = req.query;
-    
-      // userIdが存在する場合、バリデーションを実施
-      if (userId && !mongoose.Types.ObjectId.isValid(userId)) {
-        return res.status(400).json({ message: 'Invalid userId format' });
-      }
-  
-      // userIdが提供されていない場合、すべての投稿を返す
-      const filter = userId ? { userId: mongoose.Types.ObjectId(userId) } : {};
-      const posts = await Post.find(filter).sort({ _id: -1 }).populate('userId', 'username profilePicture');
-  
-      res.json(posts);  // 投稿とユーザー情報を一緒に返す
-    } catch (err) {
-      console.error('Error fetching posts:', err);
-      res.status(500).json({ message: err.message });
+    // userIdが存在する場合、バリデーションを実施
+    if (userId && !mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: 'Invalid userId format' });
     }
-  });
-  
-  
+    // userIdが提供されていない場合、すべての投稿を返す
+    const filter = userId ? {userId} : {};
+    const posts = await Post.find(filter).sort({ _id: -1 }).populate('userId', 'username profilePicture');
+     
+    res.json(posts);  // 投稿とユーザー情報を一緒に返す
+  } catch (err) {
+    console.error('Error fetching posts:', err);
+    res.status(500).json({ message: err.message });
+  }
+});
 
 
 
