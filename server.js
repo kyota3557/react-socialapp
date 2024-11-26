@@ -171,61 +171,19 @@ app.put('/api/users/me', authenticate, async (req, res) => {
 });
 
 
-app.post('/api/posts/:postId/like', async (req, res) => {
-  const { postId } = req.params;
-  const { userId } = req.body; // 認証されたユーザーのIDを取得
+app.post('/api/posts/:postId/toggleLike',async(req,res) => {
+  const {postId} = req.params;
+  const {userId} = req.body;
 
-  console.log('req.body:', req.body); // userId を確認するためのデバッグ出力
-
-  try {
-    // Postを取得
-    const post = await Post.findById(postId);
-
-    // すでにいいねしているか確認
-    if (post.likes.includes(userId)) {
-      return res.status(400).json({ message: 'You already liked this post.' });
-    }
-
-    // いいねを追加
-    post.likes.push(userId);
-    await post.save();
-
-    console.log('Post liked by user:', userId);
-
-    // 更新後のいいねリストを返す
-    res.json({ likes: post.likes });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Error adding like' });
-  }
+  const post = await Post.findById(postId);
+  const hasLiled = post.likes.includes(userId);
+  const update = hasLiled
+  ? {$pull :{likes:userId}}
+  : {$addToSet :{likes:userId}};
+    await Post.updateOne({_id:postId},update);
+    console.log(post.likes.length)
+    res.status(200).json({message:hasLiled? 'Unlike' : 'Like'});
 });
-
-
-  
-  // いいねを削除
-  app.delete('/api/posts/:postId/like', authenticate, async (req, res) => {
-    const { postId } = req.params;
-    const userId = req.user._id;  // 認証されたユーザーのIDを取得
-    
-    try {
-      const post = await Post.findById(postId);
-      
-      // いいねしていない場合
-      if (!post.likes.includes(userId)) {
-        return res.status(400).json({ message: 'You have not liked this post yet.' });
-      }
-  
-      // いいねを削除
-      post.likes = post.likes.filter((id) => id.toString() !== userId.toString());
-      await post.save();
-  
-      // 更新後のいいねリストを返す
-      res.json({ likes: post.likes });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: 'Error removing like' });
-    }
-  });
 
   // routes/posts.js
 
@@ -284,7 +242,6 @@ app.get('/api/posts', async (req, res) => {
     // userIdが提供されていない場合、すべての投稿を返す
     const filter = userId ? {userId} : {};
     const posts = await Post.find(filter).sort({ _id: -1 }).populate('userId', 'username profilePicture');
-     
     res.json(posts);  // 投稿とユーザー情報を一緒に返す
   } catch (err) {
     console.error('Error fetching posts:', err);

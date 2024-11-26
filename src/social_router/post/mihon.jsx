@@ -2,18 +2,18 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './css/AllPost.css';
 import { Link } from 'react-router-dom';
-import Like from './Like';
+
 const AllPost = ({ token, currentUserId }) => {
   const [posts, setPosts] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [newComments, setNewComments] = useState({}); // 投稿ごとのコメント状態を管理
+  const [newComments, setNewComments] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentImage, setCurrentImage] = useState(null); // モーダル用の画像
+  const [currentImage, setCurrentImage] = useState(null);
 
   // 投稿を取得する関数
   const fetchPosts = async () => {
-    setLoading(true); // APIリクエスト前にローディング開始
+    setLoading(true); 
     try {
       const response = await axios.get('http://localhost:5000/api/posts');
       const postsWithUserInfo = await Promise.all(
@@ -25,7 +25,7 @@ const AllPost = ({ token, currentUserId }) => {
               );
               return {
                 ...comment,
-                userInfo: userResponse.data, // コメントにユーザー情報を追加
+                userInfo: userResponse.data,
               };
             })
           );
@@ -33,15 +33,13 @@ const AllPost = ({ token, currentUserId }) => {
         })
       );
       setPosts(postsWithUserInfo);
-      console.log("今のデータは",response.data);
     } catch (error) {
       console.error('Error fetching posts:', error);
       setError(`Error fetching posts: ${error.message || 'Unknown error'}`);
     } finally {
-      setLoading(false); // ローディング完了
+      setLoading(false);
     }
   };
-
 
   // モーダルを開く
   const openModal = (imageSrc) => {
@@ -55,20 +53,46 @@ const AllPost = ({ token, currentUserId }) => {
     setCurrentImage(null);
   };
 
- const handleLike = async (postId) => {
-  const response = await axios.post(`http://localhost:5000/api/posts/${postId}/togglelike`,{
-    userId:currentUserId
-  }
-);
-    setPosts((prevPosts) =>
-    prevPosts.map((post) =>
-    post._id === postId
-    ? {...post,likes:response.data.likes}
-    :post
-)
-);
-  
- };
+  // いいねを押す処理
+  const handleLike = async (postId) => {
+    try {
+      const response = await axios.post(
+        `http://localhost:5000/api/posts/${postId}/like`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post._id === postId
+            ? { ...post, likes: response.data.likes }
+            : post
+        )
+      );
+    } catch (error) {
+      console.error('Error liking post:', error);
+      alert('いいねの操作に失敗しました');
+    }
+  };
+
+  // いいねを削除する処理
+  const handleDeleteLike = async (postId) => {
+    try {
+      const response = await axios.delete(
+        `http://localhost:5000/api/posts/${postId}/like`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post._id === postId
+            ? { ...post, likes: response.data.likes }
+            : post
+        )
+      );
+    } catch (error) {
+      console.error('Error deleting like:', error);
+      alert('いいねの削除に失敗しました');
+    }
+  };
 
   // コメント入力変更時の処理
   const handleCommentChange = (postId, comment) => {
@@ -80,12 +104,12 @@ const AllPost = ({ token, currentUserId }) => {
 
   // コメント送信処理
   const handleCommentSubmit = (postId) => {
-    const comment = newComments[postId]; // 特定の投稿のコメント
+    const comment = newComments[postId];
     if (comment.trim().length > 0) {
-      handleAddComment(postId, comment); // コメントを追加
+      handleAddComment(postId, comment);
       setNewComments((prevComments) => ({
         ...prevComments,
-        [postId]: '', // 送信後、入力フィールドをリセット
+        [postId]: '',
       }));
     }
   };
@@ -98,8 +122,7 @@ const AllPost = ({ token, currentUserId }) => {
           userId: currentUserId
         }
       );
-      // コメント追加後、データを再取得
-      fetchPosts();
+      fetchPosts(); // コメント追加後、データを再取得
     } catch (error) {
       console.error('Error adding comment:', error);
     }
@@ -121,14 +144,14 @@ const AllPost = ({ token, currentUserId }) => {
   // 初回データ取得
   useEffect(() => {
     fetchPosts();
-  }, [token, currentUserId]); // tokenやcurrentUserIdが変更された場合に再度データを取得
+  }, [token, currentUserId]);
 
   if (error) {
     return <div>Error: {error}</div>;
   }
 
   if (loading) {
-    return <div>Loading...</div>; // ローディング中の表示
+    return <div>Loading...</div>;
   }
 
   return (
@@ -157,7 +180,7 @@ const AllPost = ({ token, currentUserId }) => {
                 src={`http://localhost:5000/${post.picture}`}
                 alt="Post Picture"
                 className="post-picture"
-                onClick={() => openModal(`http://localhost:5000/${post.picture}`)} // モーダルを開く
+                onClick={() => openModal(`http://localhost:5000/${post.picture}`)}
               />
             )}
 
@@ -166,12 +189,25 @@ const AllPost = ({ token, currentUserId }) => {
                 <img
                   src={currentImage}
                   alt="Full Post Picture"
-                  onClick={(e) => e.stopPropagation()} // 画像をクリックしてもモーダルが閉じない
+                  onClick={(e) => e.stopPropagation()}
                 />
-              </div>)}
+              </div>
+            )}
 
             {/* いいねボタン */}
-           <Like postId={post._id} initialLikes={post.likes} userId={currentUserId}/>
+            <button
+              onClick={() => {
+                if (post.likes.includes(currentUserId)) {
+                  handleDeleteLike(post._id);
+                } else {
+                  handleLike(post._id);
+                }
+              }}
+              className={post.likes.includes(currentUserId) ? 'liked' : ''}
+            >
+              <span>♥</span>
+              {post.likes.length}
+            </button>
 
             {/* コメントリストと入力フォーム */}
             <div className="comments">

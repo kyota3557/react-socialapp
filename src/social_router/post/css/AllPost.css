@@ -1,209 +1,207 @@
-/* 投稿一覧全体のスタイル */
-.post-item {
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-    margin-bottom: 15px;
-    border-bottom: 1px solid #eee;
+/* 全体のレイアウト */
+div {
+    font-family: 'Arial', sans-serif;
+    margin: 20px;
+  }
+  
+  h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .post-item {
     background-color: #fff;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    transition: background-color 0.3s ease;
-}
-
-.post-item:hover {
-    background-color: #f9f9f9;
-}
-
-/* ユーザー情報のラッパー */
-.user-info {
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    padding: 20px;
+    transition: transform 0.3s ease;
+  }
+  
+  .post-item:hover {
+    transform: scale(1.02);
+  }
+  
+  .user-info {
     display: flex;
     align-items: center;
     margin-bottom: 10px;
-    gap: 15px;
-}
-
-/* プロフィール画像 */
-.profile-picture {
-    width: 90px;
-    height: 90px;
+  }
+  
+  .profile-picture {
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    object-fit: cover;
-    border: 4px solid #eee;
-    transition: transform 0.3s ease;
-}
-
-.profile-picture:hover {
-    transform: scale(1.05);
-}
-
-/* ユーザー名 */
-.username {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #2c3e50;
+    margin-right: 10px;
+  }
+  
+  .username {
+    font-size: 16px;
+    color: #007bff;
     text-decoration: none;
-    transition: color 0.3s ease;
-}
-
-.username:hover {
-    color: #3498db; /* ホバー時にリンクの色を変更 */
-}
-
-/* 投稿内容 */
-.post-content {
-    font-size: 1rem;
+  }
+  
+  .username:hover {
+    text-decoration: underline;
+  }
+  
+  .post-content {
+    font-size: 18px;
     color: #333;
     line-height: 1.6;
     margin-bottom: 15px;
-}
-
-/* 画像のサイズを最大幅で制限 */
-.post-picture {
-    max-width: 200px;
-    height: 400px;
-    cursor: pointer; /* クリックできることを示す */
-    object-fit: contain; /* 画像がアスペクト比を保ちつつ表示されるようにする */
   }
   
+  .post-picture {
+    max-width: 100%;
+    border-radius: 10px;
+    margin-top: 10px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+  }
+  
+  .post-picture:hover {
+    transform: scale(1.05);
+  }
+  
+  /* モーダルのスタイル */
   .modal {
-    display: none; /* 最初は非表示 */
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
     justify-content: center;
     align-items: center;
+  }
+  
+  .modal.open {
+    display: flex;
   }
   
   .modal img {
     max-width: 90%;
     max-height: 90%;
-    object-fit: contain;
+    border-radius: 10px;
   }
   
-  /* モーダルが開いている時に表示 */
-  .modal.open {
-    display: flex;
-  }
-  
-
+  /* いいねボタン */
 /* いいねボタン */
 button {
-    padding: 8px 16px;
-    font-size: 0.9rem;
-    color: #fff;
-    background-color: #3498db;
     border: none;
-    border-radius: 5px;
+    background: transparent;
+    padding: 10px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-right: 10px;
-}
-
-button:hover {
-    background-color: #2980b9;
-}
-
-button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-}
-
-/* コメントセクション */
-.comments {
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+    transition: transform 0.2s ease;
+  }
+  
+  button span {
+    margin-right: 5px;
+    transition: color 0.3s ease;
+    color: gray;  /* デフォルト色を灰色に設定 */
+  }
+  
+  button:hover span {
+    color: #ff4d4d; /* ホバー時に赤くなる */
+  }
+  
+  button:focus {
+    outline: none; /* フォーカス時のアウトラインを消す */
+  }
+  
+  button:active {
+    transform: scale(0.98); /* クリック時に少し縮小 */
+  }
+  
+  /* いいねを押した後の赤いハート */
+  button.liked span {
+    color: #ff4d4d; /* いいねが押された時の色 */
+  }
+  
+  /* いいねボタンを押した時の状態にクラスを追加 */
+  button.liked {
+    background-color: transparent; /* 背景を透明にしてハートだけ赤く */
+  }
+  
+  button span.liked {
+    color: #ff4d4d; /* 赤いハート */
+  }
+  
+  
+  /* コメントセクション */
+  .comments {
     margin-top: 20px;
-}
-
-.comment {
+    padding-top: 10px;
+    border-top: 1px solid #f1f1f1;
+  }
+  
+  .comment {
+    display: flex;
+    align-items: center;
     margin-bottom: 10px;
-    font-size: 0.95rem;
-    color: #555;
-}
-
-.comment strong {
-    color: #3498db;
-}
-
-/* コメント入力欄 */
-input[type="text"] {
-    width: 100%;
-    padding: 8px;
-    font-size: 1rem;
+  }
+  
+  .comment .profile-picture {
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+  }
+  
+  .comment strong {
+    margin-right: 5px;
+    color: #333;
+  }
+  
+  .comments input {
+    width: 80%;
+    padding: 10px;
+    margin-top: 10px;
     border: 1px solid #ddd;
     border-radius: 5px;
-    margin-bottom: 10px;
-    transition: border-color 0.3s ease;
-}
-
-input[type="text"]:focus {
-    border-color: #3498db;
-    outline: none;
-}
-
-/* コメント送信ボタン */
-button[type="submit"] {
-    width: 100%;
-    padding: 10px;
-    font-size: 1rem;
+  }
+  
+  .comments button {
+    padding: 10px 15px;
+    background-color: #007bff;
     color: #fff;
-    background-color: #3498db;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-}
-
-button[type="submit"]:hover {
-    background-color: #2980b9;
-}
-
-/* 削除ボタン */
-.delete-button {
-    background-color: #e74c3c;
-    color: white;
+  }
+  
+  .comments button:hover {
+    background-color: #0056b3;
+  }
+  
+  /* 投稿削除ボタン */
+  .delete-button {
+    background-color: #f44336;
+    color: #fff;
     border: none;
-    padding: 8px 16px;
+    padding: 8px 15px;
     border-radius: 5px;
     cursor: pointer;
-    margin-top: 10px;
     transition: background-color 0.3s ease;
-}
-
-.delete-button:hover {
-    background-color: #c0392b;
-}
-
-.delete-button:focus {
-    outline: none;
-}
-
-/* レスポンシブ対応 */
-@media (max-width: 768px) {
-    .post-item {
-        padding: 15px;
-    }
-
-    .profile-picture {
-        width: 80px;
-        height: 80px;
-    }
-
-    .username {
-        font-size: 1rem;
-    }
-
-    .post-content {
-        font-size: 0.95rem;
-    }
-
-    button,
-    .delete-button {
-        padding: 6px 12px;
-    }
-
-    input[type="text"] {
-        font-size: 0.9rem;
-    }
-}
+  }
+  
+  .delete-button:hover {
+    background-color: #d32f2f;
+  }
+  
+  .no-comments {
+    color: #aaa;
+    font-style: italic;
+  }
+  

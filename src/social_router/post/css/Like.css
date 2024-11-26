@@ -1,0 +1,12 @@
+.Like {
+    font-size: 30px;  /* アイコンのサイズ */
+    color: gray;      /* いいねしていないときは灰色 */
+  }
+  
+  .hasLiked {
+    font-size: 30px;
+    color: red;       /* いいねしたときは赤色 */
+  }
+.like {
+    display: flex;
+}

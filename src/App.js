@@ -56,7 +56,7 @@ function App() {
           <Route path='/edit' element={<Edit />} />
           <Route path='/createpost' element={<CreatePost token={token} />} />
           <Route path='/userinfo' element={<UserInfo token={token} />} />
-          <Route path="/userpage/:userId" element={<UserPage token={token} />} />
+          <Route path="/userpage/:userId" element={<UserPage token={token} currentUserId={currentUserId} />} />
         </Routes>
       </BrowserRouter>
     </div>
