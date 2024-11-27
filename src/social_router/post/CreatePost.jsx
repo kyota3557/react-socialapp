@@ -6,7 +6,7 @@ const CreatePost = ({ token }) => {
   const [user, setUser] = useState(null);
   const [postText, setPostText] = useState('');
   const [error, setError] = useState('');
-  const [picture, setPicture] = useState(null);
+  const [pictures, setPictures] = useState([]);
 
   // ユーザー情報の取得
   const fetchUserData = async () => {
@@ -25,10 +25,9 @@ const CreatePost = ({ token }) => {
 
   // 画像の選択を処理
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setPicture(file);
-    }
+    const files = Array.from(e.target.files);
+    console.log(files)
+    setPictures((prevPictures) => [...prevPictures, ...files]);
   };
 
   // 投稿テキストの変更を処理
@@ -47,10 +46,12 @@ const CreatePost = ({ token }) => {
     const formData = new FormData();
     formData.append('content', postText);
     formData.append('userId', user._id);
-    if (picture) {
-      formData.append('picture', picture);
-    }
-
+    if (pictures) {
+      pictures.forEach((picture) => {
+        formData.append('pictures', picture);
+      })
+    };
+    console.log(formData)
     try {
       await axios.post('http://localhost:5000/api/posts', formData, {
         headers: {
@@ -59,7 +60,7 @@ const CreatePost = ({ token }) => {
         },
       });
       setPostText('');
-      setPicture(null); // 投稿後は画像をリセット
+      setPictures([]); // 投稿後は画像をリセット
     } catch (error) {
       setError('投稿の作成に失敗しました');
       console.error('Error posting', error);
@@ -82,30 +83,32 @@ const CreatePost = ({ token }) => {
           rows="4"
           cols="50"
         />
-        <br />
-        <button type="submit">投稿</button>
-      </form>
-      <Link to="/home">戻る</Link>
       <li className="input-li">
-        <label className="input-label" htmlFor="picture">
-          プロフィール画像
+        <label className="input-label" htmlFor="pictures">
+          画像を選択
         </label>
         <input
           type="file"
-          name="picture"
-          id="picture"
+          name="pictures"
+          id="pictures"
+          multiple
           accept="image/*"
           onChange={handleFileChange}
         />
       </li>
-      {picture && (
-        <img
-          src={URL.createObjectURL(picture)}
-          alt="Picture Preview"
-          className="Picture-preview"
+      {pictures.map((picture,index) => (
+        <img 
+        key={index}
+        src={URL.createObjectURL(picture)}
+        alt={`preview-${index}`}
+        style={{ width:"100px" }}
         />
-      )}
+      ))}
+      <button type="submit">投稿</button>
+      </form>
+      <Link to="/home">戻る</Link>
     </div>
+    
   );
 };
 
