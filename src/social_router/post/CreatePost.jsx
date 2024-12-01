@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { Link,useNavigate } from 'react-router-dom';
 
 const CreatePost = ({ token }) => {
   const [user, setUser] = useState(null);
   const [postText, setPostText] = useState('');
   const [error, setError] = useState('');
   const [pictures, setPictures] = useState([]);
-
+  const navigate = useNavigate();
   // ユーザー情報の取得
   const fetchUserData = async () => {
     try {
@@ -61,6 +61,7 @@ const CreatePost = ({ token }) => {
       });
       setPostText('');
       setPictures([]); // 投稿後は画像をリセット
+      navigate('/home')
     } catch (error) {
       setError('投稿の作成に失敗しました');
       console.error('Error posting', error);

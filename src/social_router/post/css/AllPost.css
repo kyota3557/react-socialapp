@@ -59,16 +59,18 @@ div {
   }
   
   .post-picture {
-    max-width: 100%;
-    border-radius: 10px;
-    margin-top: 10px;
-    cursor: pointer;
-    transition: transform 0.3s ease;
+    width: 150px;        /* 幅を150pxに設定 */
+    height: 100px;       /* 高さを100pxに設定 */
+    border-radius: 10px; /* 角を丸くする */
+    margin-top: 10px;    /* 上に少しスペースを追加 */
+    cursor: pointer;    /* クリック可能にする */
+    transition: transform 0.3s ease; /* ホバー時に拡大縮小がスムーズに動く */
   }
   
   .post-picture:hover {
-    transform: scale(1.05);
+    transform: scale(1.1);  /* ホバー時に少し拡大する */
   }
+  
   
   /* モーダルのスタイル */
   .modal {

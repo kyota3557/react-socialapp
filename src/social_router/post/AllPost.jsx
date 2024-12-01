@@ -152,14 +152,15 @@ const AllPost = ({ token, currentUserId }) => {
               </Link>
             </div>
             <p className="post-content">{post.content}</p>
-            {post.picture && (
+            {post.pictures && post.pictures.map((picture) => (
               <img
-                src={`http://localhost:5000/${post.picture}`}
-                alt="Post Picture"
-                className="post-picture"
-                onClick={() => openModal(`http://localhost:5000/${post.picture}`)} // モーダルを開く
-              />
-            )}
+              src={`http://localhost:5000/${picture}`}
+              alt="Post Picture"
+              className="post-picture"
+              onClick={() => openModal(`http://localhost:5000/${picture}`)} // モーダルを開く
+            />
+            )) 
+            }
 
             {isModalOpen && (
               <div className={`modal ${isModalOpen ? 'open' : ''}`} onClick={closeModal}>

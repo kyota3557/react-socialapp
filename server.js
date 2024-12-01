@@ -51,7 +51,7 @@ const postSchema = new mongoose.Schema(
       content: { type: String, required: true },
       userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
       likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],  // いいねしたユーザーのID
-      picture: String,
+      pictures:  [{ type: String }],
       comments: [
         {
           userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
@@ -213,23 +213,6 @@ app.post('/api/posts/:postId/comment', async (req, res) => {
   }
 });
 
-
-
-// app.get('/api/:postId', async (req, res) => {
-//     const { postId } = req.params;
-    
-//     if (!mongoose.Types.ObjectId.isValid(postId)) {
-//         return res.status(400).json({ message: 'Invalid post ID' });
-//     }
-
-//     try {
-//       const post = await Post.findById(postId).populate('comments.userId', 'username');
-//       res.json(post);
-//     } catch (err) {
-//       console.error(err);
-//       res.status(500).json({ message: 'Error fetching post' });
-//     }
-//   });
   
 app.get('/api/posts', async (req, res) => {
   try {
@@ -251,21 +234,20 @@ app.get('/api/posts', async (req, res) => {
 
 
 
-app.post('/api/posts',upload.single('picture'), async (req, res) => {
-    try {
-        const { content, userId } = req.body;  // ユーザーIDを使用
-        const formData = {
-          userId:req.body.userId,
-          content:req.body.content,
-          picture:req.file.path,
-        }
-        const newPost = new Post(formData);
-        const savedPost = await newPost.save();
-        res.json(savedPost);  // 新しい投稿をレスポンスとして返す
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
+app.post('/api/posts', upload.array('pictures'), async (req, res) => {
+  // 画像は req.files に格納されます
+  const { content, userId } = req.body;
+  const formData = {
+    userId: req.body.userId,
+    content: req.body.content,
+    pictures: req.files.map(file => file.path), // 複数のファイルパスを格納
+  };
+  console.log('formData:', formData);
+  const newPost = new Post(formData);
+  const savedPost = await newPost.save();
+  res.json(savedPost); // 新しい投稿をレスポンスとして返す
 });
+
 
 app.delete('/api/posts/:id',async (req,res) => {
     const { id } = req.params;
