@@ -3,6 +3,7 @@ import axios from 'axios';
 import './css/UserPage.css';  // 必要に応じてスタイルを追加
 import { useParams } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import Like from '../post/Like';
 const UserPage = ({ token, currentUserId }) => {
   const {userId} = useParams()
   const [posts, setPosts] = useState([]);
@@ -159,29 +160,28 @@ const UserPage = ({ token, currentUserId }) => {
               </Link>
             </div>
             <p className="post-content">{post.content}</p>
-            {post.picture && (
-              <img
-                src={`http://localhost:5000/${post.picture}`}
-                alt="Post Picture"
-                className="post-picture"
-                onClick={() => openModal(`http://localhost:5000/${post.picture}`)} // モーダルを開く
-              />
+            {post.pictures &&
+              post.pictures.map((picture) => (
+                <img
+                  key={picture}
+                  src={`http://localhost:5000/${picture}`}
+                  alt="Post Picture"
+                  className="post-picture"
+                  onClick={() => openModal(`http://localhost:5000/${picture}`)}
+                />
+              ))}
+              {isModalOpen && (
+              <div className="modal open" onClick={closeModal}>
+                <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                  <button className="close-button" onClick={closeModal}>
+                    ✖
+                  </button>
+                  <img src={currentImage} alt="Full Post Picture" />
+                </div>
+              </div>
             )}
 
-            {isModalOpen && (
-              <div className={`modal ${isModalOpen ? 'open' : ''}`} onClick={closeModal}>
-                <img
-                  src={currentImage}
-                  alt="Full Post Picture"
-                  onClick={(e) => e.stopPropagation()} // 画像をクリックしてもモーダルが閉じない
-                />
-              </div>)}
-
-            {/* いいねボタン */}
-            <button onClick={() => handleLike(post._id)}>
-              {post.likes.includes(currentUserId) ? 'Unlike' : 'Like'} ({post.likes.length})
-            </button>
-
+            <Like postId={post._id} initialLikes={post.likes} userId={currentUserId} />
             {/* コメントリストと入力フォーム */}
             <div className="comments">
               {post.comments && post.comments.length > 0 ? (

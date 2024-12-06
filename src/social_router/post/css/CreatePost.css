@@ -1,0 +1,113 @@
+/* 全体のレイアウト */
+.post-page {
+    font-family: Arial, sans-serif;
+    background-color: #f7f7f7;
+    padding: 30px;
+    max-width: 800px;
+    margin: 0 auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+  }
+  
+  /* 見出し */
+  .post-title {
+    text-align: center;
+    color: #333;
+    font-size: 2rem;
+    margin-bottom: 20px;
+  }
+  
+  /* フォームのレイアウト */
+  .post-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  /* テキストエリアのスタイル */
+  .post-textarea {
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    resize: vertical;
+    min-height: 150px;
+    max-width: 100%;
+    font-family: Arial, sans-serif;
+    transition: border-color 0.3s ease;
+  }
+  
+  .post-textarea:focus {
+    border-color: #007bff;
+    outline: none;
+  }
+  
+  .input-li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .input-label {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+  }
+  
+  .file-input {
+    display: none; /* デフォルトのファイル入力は隠す */
+  }
+  
+  .custom-file-input {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-bottom: 10px;
+  }
+  
+  .custom-file-input:hover {
+    background-color: #0056b3;
+  }
+  
+  /* 複数の画像プレビューのスタイル */
+  .image-previews {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .image-preview {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .submit-button {
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-bottom: 10px;
+    
+  }
+  /* ボタンのホバー効果 */
+  .custom-file-input:active {
+    background-color: #004085;
+  }

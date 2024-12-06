@@ -24,9 +24,7 @@ div {
     transition: transform 0.3s ease;
   }
   
-  .post-item:hover {
-    transform: scale(1.02);
-  }
+
   
   .user-info {
     display: flex;
@@ -73,29 +71,66 @@ div {
   
   
   /* モーダルのスタイル */
-  .modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    display: none;
-    justify-content: center;
-    align-items: center;
-  }
+ /* モーダル全体のスタイル */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7); /* 半透明の背景 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0; /* 初期状態では非表示 */
+  visibility: hidden; /* 初期状態では非表示 */
+  transition: opacity 0.3s ease, visibility 0s 0.3s; /* フェードイン/フェードアウトのアニメーション */
+}
+
+.modal.open {
+  opacity: 1; /* モーダルが表示される時 */
+  visibility: visible; /* モーダルが表示される時 */
+  transition: opacity 0.3s ease, visibility 0s; /* アニメーションを同期 */
+}
+
+/* モーダル内のコンテンツ */
+.modal-content {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 90%;
+  max-height: 80%;
+}
+
+/* 閉じるボタン */
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 2rem;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.close-button:hover {
+  color: #ff0000;
+}
+
+/* モーダル内の画像 */
+.modal img {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
   
-  .modal.open {
-    display: flex;
-  }
-  
-  .modal img {
-    max-width: 90%;
-    max-height: 90%;
-    border-radius: 10px;
-  }
-  
-  /* いいねボタン */
+ 
 /* いいねボタン */
 button {
     border: none;

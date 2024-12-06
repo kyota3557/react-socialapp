@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link,useNavigate } from 'react-router-dom';
-
+import './css/CreatePost.css'
 const CreatePost = ({ token }) => {
   const [user, setUser] = useState(null);
   const [postText, setPostText] = useState('');
@@ -74,21 +74,23 @@ const CreatePost = ({ token }) => {
   }, [token]);
 
   return (
-    <div>
-      <h1>投稿ページ</h1>
-      <form onSubmit={handlePostSubmit}>
-        <textarea
-          value={postText}
-          onChange={handlePostTextChange}
-          placeholder="今どうしてる"
-          rows="4"
-          cols="50"
-        />
-      <li className="input-li">
+    <div className="post-page">
+      <h1 className="post-title">投稿ページ</h1>
+      <form className="post-form" onSubmit={handlePostSubmit}>
+      <textarea
+        className="post-textarea"
+        value={postText}
+        onChange={handlePostTextChange}
+        placeholder="今どうしてる"
+        rows="4"
+        cols="50"
+      />
+      <div className="input-li">
         <label className="input-label" htmlFor="pictures">
           画像を選択
         </label>
         <input
+          className="file-input"
           type="file"
           name="pictures"
           id="pictures"
@@ -96,20 +98,31 @@ const CreatePost = ({ token }) => {
           accept="image/*"
           onChange={handleFileChange}
         />
-      </li>
-      {pictures.map((picture,index) => (
-        <img 
-        key={index}
-        src={URL.createObjectURL(picture)}
-        alt={`preview-${index}`}
-        style={{ width:"100px" }}
-        />
-      ))}
-      <button type="submit">投稿</button>
+        <button 
+          className="custom-file-input" 
+          onClick={(event) => {
+            event.preventDefault(); // フォーム送信を防止
+            document.getElementById('pictures').click(); // ファイル選択ボックスをクリック
+          }}
+        >
+          画像を選択
+        </button>
+      </div>
+      
+      <div className="image-previews">
+        {pictures.map((picture, index) => (
+          <img 
+            key={index}
+            className="image-preview"
+            src={URL.createObjectURL(picture)}
+            alt={`preview-${index}`}
+          />
+        ))}
+      </div>
+      <button className="submit-button" type="submit">投稿</button>
       </form>
-      <Link to="/home">戻る</Link>
+      <Link className="back-link" to="/home">戻る</Link>
     </div>
-    
   );
 };
 
